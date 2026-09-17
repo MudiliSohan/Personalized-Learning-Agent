@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalized Learning Agent - Hackathon MVP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .step-container { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hidden-custom { display: none !important; }
+        .option-btn.selected {
+            border-color: #3b82f6; background-color: #eff6ff;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-graduation-cap text-white text-sm"></i>
+                </div>
+                <span class="font-bold text-lg text-gray-800">LearnFlow AI MVP</span>
+            </div>
+            <div class="text-sm font-medium text-gray-500" id="step-indicator">Step 1 of 5</div>
+        </div>
+    </nav>
+
+    <main class="max-w-3xl mx-auto px-4 py-8">
+        
+        <!-- Error Message Toast -->
+        <div id="error-toast" class="hidden-custom fixed top-20 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-full shadow-lg font-medium text-sm z-50 transition-all duration-300">
+            Please complete all required fields.
+        </div>
+
+        <!-- STEP 1: Student Profile -->
+        <div id="step-1" class="step-container bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-800">Student Profile</h2>
+                <p class="text-gray-500 mt-2">Let's get to know you to personalize your learning path.</p>
+            </div>
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                    <input type="text" id="profile-name" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="John Doe">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">College/University *</label>
+                    <input type="text" id="profile-college" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="State University">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Course/Degree *</label>
+                        <select id="profile-degree" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="">Select Degree...</option>
+                            <option value="B.Tech">B.Tech / B.E.</option>
+                            <option value="B.Sc">B.Sc</option>
+                            <option value="BCA">BCA</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Year of Study *</label>
+                        <select id="profile-year" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="">Select Year...</option>
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Branch/Specialization *</label>
+                    <input type="text" id="profile-branch" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" placeholder="Computer Science">
+                </div>
+                <button onclick="goToSubjectSelection()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 mt-4 cursor-pointer">
+                    Continue <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 2: Subject Selection -->
+        <div id="step-2" class="step-container hidden-custom bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-800">What are you studying?</h2>
+                <p class="text-gray-500 mt-2">Select the subjects you are currently focusing on.</p>
+            </div>
+            
+            <div class="space-y-3" id="subject-list">
+                <!-- Checkboxes injected dynamically -->
+            </div>
+
+            <div class="mt-6 flex space-x-2">
+                <input type="text" id="custom-subject" placeholder="Add another subject..." class="flex-1 border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none">
+                <button onclick="addCustomSubject()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition cursor-pointer">Add</button>
+            </div>
+
+            <div class="mt-8 flex justify-between space-x-4">
+                <button onclick="goToStep(1)" class="w-1/3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold py-3 px-6 rounded-lg transition duration-200 cursor-pointer">
+                    Back
+                </button>
+                <button onclick="goToSelfAssessment()" class="w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 cursor-pointer">
+                    Continue <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 3: Self-Assessment -->
+        <div id="step-3" class="step-container hidden-custom bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-800">Self Assessment</h2>
+                <p class="text-gray-500 mt-2">How would you rate your current proficiency in these subjects?</p>
+            </div>
+
+            <div id="self-assessment-container" class="space-y-6">
+                <!-- Proficiency forms injected dynamically -->
+            </div>
+
+            <div class="mt-8 flex justify-between space-x-4">
+                <button onclick="goToStep(2)" class="w-1/3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold py-3 px-6 rounded-lg transition duration-200 cursor-pointer">
+                    Back
+                </button>
+                <button onclick="startAssessment()" class="w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 cursor-pointer">
+                    Start Assessment <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 4: Actual Assessment -->
+        <div id="step-4" class="step-container hidden-custom">
+            <div class="bg-white p-4 rounded-t-2xl border border-gray-200 border-b-0 flex justify-between items-center shadow-sm relative z-10">
+                <div class="flex items-center">
+                    <span class="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-full text-xs uppercase tracking-wide" id="assessment-subject-badge">Subject</span>
+                </div>
+                <div class="font-medium text-gray-500 text-sm" id="assessment-progress">
+                    Question 1 of 5
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 md:p-8 rounded-b-2xl shadow-sm border border-gray-200">
+                <h3 class="text-xl font-semibold text-gray-800 mb-6" id="question-text">Question loading...</h3>
+                
+                <div class="space-y-3" id="options-container">
+                    <!-- Options injected dynamically -->
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-gray-100 flex justify-between">
+                    <button id="btn-prev-q" onclick="prevQuestion()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold py-3 px-6 rounded-lg transition duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <button id="btn-next-q" onclick="nextQuestion()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 cursor-pointer">
+                        Next <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 5: Performance Analysis & MVP Complete Package -->
+        <div id="step-5" class="step-container hidden-custom">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-chart-pie text-3xl text-blue-600"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">Performance Analysis & Learning Plan</h2>
+                <p class="text-gray-600 mt-2">Comprehensive dynamic assessment results, skill-gap detection, and structured study roadmap.</p>
+            </div>
+
+            <!-- Total Score Section -->
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 text-center mb-8 shadow-sm">
+                <h3 class="text-lg font-semibold text-blue-800 mb-2">Total Assessment Score</h3>
+                <div class="text-5xl font-bold text-blue-600 mb-2" id="total-score-percentage">0%</div>
+                <p class="text-blue-700 text-sm font-medium" id="total-score-fraction">0 out of 0 correct</p>
+            </div>
+
+            <!-- Strong Areas & Weak Areas Summary -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-green-50 border border-green-200 rounded-xl p-6 shadow-sm">
+                    <h3 class="text-lg font-bold text-green-800 mb-3 flex items-center">
+                        <i class="fa-solid fa-circle-check mr-2"></i> Strong Areas
+                    </h3>
+                    <ul id="strong-areas-list" class="space-y-2 text-sm text-green-900">
+                        <!-- Populated dynamically -->
+                    </ul>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 shadow-sm">
+                    <h3 class="text-lg font-bold text-amber-800 mb-3 flex items-center">
+                        <i class="fa-solid fa-triangle-exclamation mr-2"></i> Weak Areas / Skill Gaps
+                    </h3>
+                    <ul id="weak-areas-list" class="space-y-2 text-sm text-amber-900">
+                        <!-- Populated dynamically -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Subject-Wise Performance Analysis -->
+            <div class="mb-10">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Subject-Wise Performance Breakdown</h3>
+                <div id="analysis-container" class="space-y-4">
+                    <!-- Dynamic analysis cards -->
+                </div>
+            </div>
+
+            <!-- Personalized Recommendations -->
+            <div class="mb-10">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Personalized Study Recommendations</h3>
+                <div id="recommendations-container" class="space-y-4">
+                    <!-- Dynamic recommendations -->
+                </div>
+            </div>
+
+            <!-- Personalized Learning Plan (Roadmap) -->
+            <div class="mb-10">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Structured Personalized Learning Plan</h3>
+                <div class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-gray-50 border-b border-gray-200 text-xs uppercase font-semibold text-gray-600">
+                            <tr>
+                                <th class="p-4">Subject / Topic</th>
+                                <th class="p-4">Recommended Activity</th>
+                                <th class="p-4">Priority</th>
+                            </tr>
+                        </thead>
+                        <tbody id="learning-plan-tbody" class="divide-y divide-gray-100 text-sm">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Progress & Improvement Tracking (Session Analytics) -->
+            <div class="mb-10 bg-indigo-50 border border-indigo-200 rounded-xl p-6 shadow-sm">
+                <h3 class="text-lg font-bold text-indigo-900 mb-2 flex items-center">
+                    <i class="fa-solid fa-chart-line mr-2"></i> Session Progress Tracker
+                </h3>
+                <p class="text-sm text-indigo-700 mb-4">Monitor your current testing session metrics and accuracy.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-indigo-100">
+                        <span class="block text-xs text-gray-500 font-semibold uppercase">Subjects Completed</span>
+                        <span class="text-2xl font-bold text-indigo-600" id="stat-subjects-count">0</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-indigo-100">
+                        <span class="block text-xs text-gray-500 font-semibold uppercase">Overall Accuracy</span>
+                        <span class="text-2xl font-bold text-indigo-600" id="stat-accuracy">0%</span>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-indigo-100">
+                        <span class="block text-xs text-gray-500 font-semibold uppercase">Readiness Level</span>
+                        <span class="text-lg font-bold text-indigo-600" id="stat-readiness">Intermediate</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Answer Review -->
+            <div class="mb-10">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Review All Answers</h3>
+                <div id="review-answers-list" class="space-y-4">
+                    <!-- Answer reviews injected dynamically -->
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button onclick="restartAgent()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg shadow-sm transition cursor-pointer">
+                    <i class="fa-solid fa-rotate-right mr-2"></i> Start New Session / Retake Assessment
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- 1. Application State ---
+        const state = {
+            profile: {},
+            availableSubjects: ["C Programming", "Mathematics", "Physics", "Chemistry", "English"],
+            selectedSubjects: [],
+            selfRatings: {},
+            assessment: {
+                history: [],
+                globalIndex: 0,
+                questionsPerSubject: 5
+            }
+        };
+
+        const proficiencyLevels = ["Beginner", "Basic", "Intermediate", "Advanced"];
+
+        // --- 2. Adaptive Question Bank ---
+        const questionBank = {
+            "C Programming": {
+                "Beginner": [
+                    { q: "What is a variable in C?", options: ["A function", "A storage location with a name", "A loop", "A compiler error"], answer: 1 },
+                    { q: "Which symbol is used for inline comments in C?", options: ["//", "--", "#", "/* */"], answer: 0 },
+                    { q: "What data type is typically used to store whole numbers?", options: ["float", "char", "int", "double"], answer: 2 },
+                    { q: "What does the standard 'printf' function do?", options: ["Takes user input", "Displays formatted output", "Terminates execution", "Declares memory"], answer: 1 },
+                    { q: "Which character correctly terminates a statement in C?", options: [".", ",", ";", ":"], answer: 2 }
+                ],
+                "Basic": [
+                    { q: "Which operator is used for equality comparison in C?", options: ["=", "==", "!=", "<>"], answer: 1 },
+                    { q: "What is the remainder of 5 divided by 2 (5 % 2)?", options: ["2.5", "2", "1", "0"], answer: 2 },
+                    { q: "Which keyword is primarily used for conditional execution?", options: ["for", "loop", "if", "switch"], answer: 2 },
+                    { q: "What does standard 'scanf' primarily do?", options: ["Reads input from user", "Prints output", "Stops the program", "Compiles code"], answer: 0 },
+                    { q: "How do you write a 'not equal' condition in C?", options: ["!==", "not", "<>", "!="], answer: 3 }
+                ],
+                "Intermediate": [
+                    { q: "What is an array in C?", options: ["A single standalone variable", "A collection of items of the same data type stored contiguously", "A function declaration", "A pointer container"], answer: 1 },
+                    { q: "Which loop structure guarantees execution at least once?", options: ["for", "while", "do-while", "nested loop"], answer: 2 },
+                    { q: "What is the index of the first element in a C array?", options: ["1", "-1", "0", "Depends on OS"], answer: 2 },
+                    { q: "How do you declare a function returning an integer?", options: ["function int()", "int myFunc()", "def myFunc(): int", "myFunc() -> int"], answer: 1 },
+                    { q: "Which keyword immediately exits from a loop or switch block?", options: ["stop", "exit", "break", "return"], answer: 2 }
+                ],
+                "Advanced": [
+                    { q: "What does a pointer variable store?", options: ["An integer value", "A memory address", "A character string", "A function name"], answer: 1 },
+                    { q: "What is dynamic memory allocation?", options: ["Allocating memory at compile time", "Allocating memory at runtime using heap", "Freeing memory automatically", "Using static storage"], answer: 1 },
+                    { q: "Which standard library function allocates uninitialized dynamic memory?", options: ["alloc()", "malloc()", "create()", "new"], answer: 1 },
+                    { q: "What is a 'struct' in C?", options: ["A basic primitive type", "A loop construct", "A user-defined composite data type", "A preprocessor directive"], answer: 2 },
+                    { q: "Which function is used to deallocate previously allocated dynamic memory?", options: ["delete", "remove()", "free()", "clear()"], answer: 2 }
+                ]
+            },
+            "Mathematics": {
+                "Beginner": [
+                    { q: "What is the sum of 15 and 27?", options: ["42", "32", "52", "41"], answer: 0 },
+                    { q: "What is the product of 8 and 7?", options: ["54", "56", "64", "49"], answer: 1 },
+                    { q: "What is the square of 5?", options: ["10", "15", "25", "20"], answer: 2 },
+                    { q: "Solve for x: x - 3 = 7", options: ["4", "10", "21", "-4"], answer: 1 },
+                    { q: "What is 100 divided by 4?", options: ["20", "25", "30", "50"], answer: 1 }
+                ],
+                "Basic": [
+                    { q: "Solve for x: 2x = 10", options: ["5", "8", "12", "20"], answer: 0 },
+                    { q: "What is the principal square root of 64?", options: ["6", "8", "10", "12"], answer: 1 },
+                    { q: "What is the area of a rectangle with length 4 and width 5?", options: ["9", "18", "20", "40"], answer: 2 },
+                    { q: "What is 3 cubed (3^3)?", options: ["9", "18", "27", "81"], answer: 2 },
+                    { q: "If y = 2x + 1, what is y when x = 3?", options: ["5", "6", "7", "8"], answer: 2 }
+                ],
+                "Intermediate": [
+                    { q: "What is the approximate value of Pi?", options: ["3.14", "2.71", "1.61", "3.00"], answer: 0 },
+                    { q: "Solve for x: 2(x + 3) = 14", options: ["4", "5", "7", "10"], answer: 0 },
+                    { q: "What is the derivative of 3x with respect to x?", options: ["x", "3", "3x", "0"], answer: 1 },
+                    { q: "What is the probability of flipping a fair coin and getting Heads?", options: ["1", "0", "0.5", "0.25"], answer: 2 },
+                    { q: "What is the sine of 90 degrees?", options: ["0", "0.5", "1", "-1"], answer: 2 }
+                ],
+                "Advanced": [
+                    { q: "What is the indefinite integral of 2x with respect to x?", options: ["x^2 + C", "2 + C", "x + C", "2x^2 + C"], answer: 0 },
+                    { q: "What is the determinant of a 2x2 identity matrix?", options: ["0", "1", "2", "-1"], answer: 1 },
+                    { q: "What is Euler's number (e) approximately?", options: ["3.14", "2.71", "1.41", "1.61"], answer: 1 },
+                    { q: "What is the natural logarithm of 1 (ln 1)?", options: ["e", "1", "0", "Infinity"], answer: 2 },
+                    { q: "Solve for real roots: x^2 - 4 = 0", options: ["x = 2", "x = -2", "x = 2 or x = -2", "x = 4"], answer: 2 }
+                ]
+            }
+        };
+
+        // Fallback question generator for subjects not explicitly in questionBank
+        function getFallbackQuestion(subject, levelStr) {
+            return {
+                q: `[${levelStr}] Core conceptual question regarding ${subject}?`,
+                options: ["Correct foundational principle", "Incorrect distractor A", "Incorrect distractor B", "Incorrect distractor C"],
+                answer: 0
+            };
+        }
+
+        // --- 3. UI Navigation & Validation ---
+        function showToast(msg) {
+            const toast = document.getElementById('error-toast');
+            toast.textContent = msg;
+            toast.classList.remove('hidden-custom');
+            setTimeout(() => toast.classList.add('hidden-custom'), 3000);
+        }
+
+        function goToStep(stepNumber) {
+            document.querySelectorAll('.step-container').forEach(el => el.classList.add('hidden-custom'));
+            document.getElementById(`step-${stepNumber}`).classList.remove('hidden-custom');
+            document.getElementById('step-indicator').textContent = `Step ${stepNumber} of 5`;
+            window.scrollTo(0, 0);
+        }
+
+        function goToSubjectSelection() {
+            const name = document.getElementById('profile-name').value.trim();
+            const college = document.getElementById('profile-college').value.trim();
+            const degree = document.getElementById('profile-degree').value;
+            const year = document.getElementById('profile-year').value;
+            const branch = document.getElementById('profile-branch').value.trim();
+
+            if (!name || !college || !degree || !year || !branch) {
+                showToast("Validation Error: Please fill in all required profile fields.");
+                return;
+            }
+
+            state.profile = { name, college, degree, year, branch };
+            renderSubjectCheckboxes();
+            goToStep(2);
+        }
+
+        function renderSubjectCheckboxes() {
+            const container = document.getElementById('subject-list');
+            container.innerHTML = '';
+            state.availableSubjects.forEach(subject => {
+                const checked = state.selectedSubjects.includes(subject) ? 'checked' : '';
+                container.innerHTML += `
+                    <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                        <input type="checkbox" value="${subject}" class="subject-checkbox w-5 h-5 text-blue-600 rounded focus:ring-blue-500" ${checked}>
+                        <span class="ml-3 text-gray-700 font-medium">${subject}</span>
+                    </label>
+                `;
+            });
+        }
+
+        function addCustomSubject() {
+            const input = document.getElementById('custom-subject');
+            const val = input.value.trim();
+            if (val && !state.availableSubjects.includes(val)) {
+                state.availableSubjects.push(val);
+                state.selectedSubjects.push(val);
+                input.value = '';
+                renderSubjectCheckboxes();
+            } else if (val) {
+                showToast("Subject already exists in list.");
+            }
+        }
+
+        function goToSelfAssessment() {
+            const checkboxes = document.querySelectorAll('.subject-checkbox:checked');
+            state.selectedSubjects = Array.from(checkboxes).map(cb => cb.value);
+
+            if (state.selectedSubjects.length === 0) {
+                showToast("Validation Error: Please select at least one subject.");
+                return;
+            }
+
+            const container = document.getElementById('self-assessment-container');
+            container.innerHTML = '';
+            
+            state.selectedSubjects.forEach((subject, idx) => {
+                const currentRating = state.selfRatings[subject] || '';
+                let optionsHTML = '';
+                
+                proficiencyLevels.forEach(level => {
+                    const isChecked = currentRating === level ? 'checked' : '';
+                    optionsHTML += `
+                        <div class="relative">
+                            <input type="radio" name="rating-${idx}" id="rating-${idx}-${level}" value="${level}" class="sr-only peer" ${isChecked}>
+                            <label for="rating-${idx}-${level}" class="block w-full text-center p-3 border border-gray-200 rounded-lg cursor-pointer text-sm font-medium text-gray-600 peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700 hover:bg-gray-50 transition">
+                                ${level}
+                            </label>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML += `
+                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-100">
+                        <h4 class="font-semibold text-gray-800 mb-3">${subject}</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            ${optionsHTML}
+                        </div>
+                    </div>
+                `;
+            });
+
+            goToStep(3);
+        }
+
+        // --- 4. Adaptive Assessment Engine ---
+        function startAssessment() {
+            let allRated = true;
+            state.selectedSubjects.forEach((subject, idx) => {
+                const selected = document.querySelector(`input[name="rating-${idx}"]:checked`);
+                if (selected) {
+                    state.selfRatings[subject] = selected.value;
+                } else {
+                    allRated = false;
+                }
+            });
+
+            if (!allRated) {
+                showToast("Validation Error: Please rate your proficiency for all selected subjects.");
+                return;
+            }
+
+            state.assessment.history = [];
+            state.assessment.globalIndex = 0;
+            
+            generateNextQuestion();
+            renderAssessmentQuestion();
+            goToStep(4);
+        }
+
+        function generateNextQuestion() {
+            const qIndex = state.assessment.history.length;
+            const subjectIndex = Math.floor(qIndex / state.assessment.questionsPerSubject);
+            const subject = state.selectedSubjects[subjectIndex];
+            
+            const subjectHistory = state.assessment.history.filter(q => q.subject === subject);
+            let currentLevelIdx = proficiencyLevels.indexOf(state.selfRatings[subject]);
+            
+            if (subjectHistory.length > 0) {
+                const lastQ = subjectHistory[subjectHistory.length - 1];
+                if (lastQ.selectedOption === lastQ.answer) {
+                    currentLevelIdx = Math.min(3, currentLevelIdx + 1); // Adaptive step-up
+                } else {
+                    currentLevelIdx = Math.max(0, currentLevelIdx - 1); // Adaptive step-down
+                }
+            }
+
+            const currentLevelStr = proficiencyLevels[currentLevelIdx];
+            let newQ = null;
+
+            if (questionBank[subject] && questionBank[subject][currentLevelStr]) {
+                const pool = questionBank[subject][currentLevelStr];
+                const unusedQs = pool.filter(q => !subjectHistory.some(hq => hq.q === q.q));
+                if (unusedQs.length > 0) {
+                    newQ = unusedQs[Math.floor(Math.random() * unusedQs.length)];
+                }
+            }
+
+            if (!newQ) {
+                newQ = getFallbackQuestion(subject, currentLevelStr);
+            }
+
+            state.assessment.history.push({
+                subject: subject,
+                levelIndex: currentLevelIdx,
+                levelStr: currentLevelStr,
+                q: newQ.q,
+                options: newQ.options,
+                answer: newQ.answer,
+                selectedOption: null
+            });
+        }
+
+        function renderAssessmentQuestion() {
+            const currentQ = state.assessment.history[state.assessment.globalIndex];
+            const totalQuestions = state.selectedSubjects.length * state.assessment.questionsPerSubject;
+            
+            document.getElementById('assessment-subject-badge').textContent = currentQ.subject;
+            document.getElementById('assessment-progress').textContent = `Question ${state.assessment.globalIndex + 1} of ${totalQuestions}`;
+            document.getElementById('question-text').textContent = currentQ.q;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            currentQ.options.forEach((opt, idx) => {
+                const isSelected = currentQ.selectedOption === idx;
+                const btnClass = isSelected ? 'option-btn selected border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50';
+                
+                optionsContainer.innerHTML += `
+                    <button onclick="handleOptionSelect(${idx})" class="w-full text-left p-4 border rounded-xl font-medium text-gray-700 transition duration-200 cursor-pointer ${btnClass}">
+                        <span class="inline-block w-6 font-bold text-gray-400 mr-2">${String.fromCharCode(65 + idx)}.</span>
+                        ${opt}
+                    </button>
+                `;
+            });
+
+            document.getElementById('btn-prev-q').disabled = (state.assessment.globalIndex === 0);
+            
+            const isLastQuestion = (state.assessment.globalIndex === totalQuestions - 1);
+            document.getElementById('btn-next-q').innerHTML = isLastQuestion ? 
+                'Submit Assessment <i class="fa-solid fa-check ml-2"></i>' : 
+                'Next <i class="fa-solid fa-arrow-right ml-2"></i>';
+        }
+
+        function handleOptionSelect(optionIndex) {
+            state.assessment.history[state.assessment.globalIndex].selectedOption = optionIndex;
+            renderAssessmentQuestion();
+        }
+
+        function prevQuestion() {
+            if (state.assessment.globalIndex > 0) {
+                state.assessment.globalIndex--;
+                renderAssessmentQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            const currentQ = state.assessment.history[state.assessment.globalIndex];
+            const totalQuestions = state.selectedSubjects.length * state.assessment.questionsPerSubject;
+
+            if (currentQ.selectedOption === null) {
+                showToast("Validation Error: Please select an answer before proceeding.");
+                return;
+            }
+
+            if (state.assessment.globalIndex < state.assessment.history.length - 1) {
+                state.assessment.globalIndex++;
+                renderAssessmentQuestion();
+            } else if (state.assessment.history.length < totalQuestions) {
+                generateNextQuestion();
+                state.assessment.globalIndex++;
+                renderAssessmentQuestion();
+            } else {
+                submitAssessment();
+            }
+        }
+
+        // --- 5. Submission & MVP Analysis Generation ---
+        function submitAssessment() {
+            let totalOverallQs = 0;
+            let totalCorrectOverall = 0;
+            
+            const resultsBySubject = {};
+            const strongAreas = [];
+            const weakAreas = [];
+            const learningPlanRows = [];
+
+            state.assessment.history.forEach(hq => {
+                const isCorrect = (hq.selectedOption === hq.answer);
+                hq.isCorrect = isCorrect;
+
+                if (!resultsBySubject[hq.subject]) {
+                    resultsBySubject[hq.subject] = { total: 0, correct: 0, maxLevelCorrect: -1, questions: [] };
+                }
+
+                resultsBySubject[hq.subject].total++;
+                resultsBySubject[hq.subject].questions.push(hq);
+                totalOverallQs++;
+                
+                if (isCorrect) {
+                    resultsBySubject[hq.subject].correct++;
+                    totalCorrectOverall++;
+                    resultsBySubject[hq.subject].maxLevelCorrect = Math.max(resultsBySubject[hq.subject].maxLevelCorrect, hq.levelIndex);
+                }
+            });
+
+            const percentage = totalOverallQs > 0 ? Math.round((totalCorrectOverall / totalOverallQs) * 100) : 0;
+            document.getElementById('total-score-percentage').textContent = `${percentage}%`;
+            document.getElementById('total-score-fraction').textContent = `${totalCorrectOverall} out of ${totalOverallQs} correct`;
+
+            // Session Stats
+            document.getElementById('stat-subjects-count').textContent = state.selectedSubjects.length;
+            document.getElementById('stat-accuracy').textContent = `${percentage}%`;
+            document.getElementById('stat-readiness').textContent = percentage >= 75 ? 'Advanced' : percentage >= 45 ? 'Intermediate' : 'Foundational';
+
+            const analysisContainer = document.getElementById('analysis-container');
+            const recommendationsContainer = document.getElementById('recommendations-container');
+            const learningPlanTbody = document.getElementById('learning-plan-tbody');
+            const strongListEl = document.getElementById('strong-areas-list');
+            const weakListEl = document.getElementById('weak-areas-list');
+
+            analysisContainer.innerHTML = '';
+            recommendationsContainer.innerHTML = '';
+            learningPlanTbody.innerHTML = '';
+            strongListEl.innerHTML = '';
+            weakListEl.innerHTML = '';
+
+            for (const subject in resultsBySubject) {
+                const data = resultsBySubject[subject];
+                const scorePct = Math.round((data.correct / data.total) * 100);
+                
+                let assessedLevelIdx = 0;
+                if (data.maxLevelCorrect >= 0) {
+                    assessedLevelIdx = data.maxLevelCorrect;
+                }
+                if (data.correct === 0) {
+                   assessedLevelIdx = Math.max(0, proficiencyLevels.indexOf(state.selfRatings[subject]) - 1);
+                }
+
+                const assessedLevelStr = proficiencyLevels[assessedLevelIdx];
+                const selfRatingStr = state.selfRatings[subject];
+                
+                let gapStatus = "";
+                let gapColor = "";
+                let gapIcon = "";
+                let priority = "Medium";
+
+                if (assessedLevelIdx < proficiencyLevels.indexOf(selfRatingStr)) {
+                    gapStatus = "Learning gap identified";
+                    gapColor = "red";
+                    gapIcon = "fa-triangle-exclamation";
+                    priority = "High";
+                    weakAreas.push(`<strong>${subject}</strong>: Scored ${scorePct}% (Assessed at ${assessedLevelStr} vs Self-rated ${selfRatingStr})`);
+                } else if (assessedLevelIdx > proficiencyLevels.indexOf(selfRatingStr)) {
+                    gapStatus = "Performing above self-rating";
+                    gapColor = "green";
+                    gapIcon = "fa-arrow-trend-up";
+                    priority = "Low";
+                    strongAreas.push(`<strong>${subject}</strong>: Exceeded expectations with ${scorePct}% accuracy at ${assessedLevelStr}.`);
+                } else {
+                    gapStatus = "Aligned with self-assessment";
+                    gapColor = "blue";
+                    gapIcon = "fa-circle-check";
+                    priority = scorePct < 60 ? "High" : "Low";
+                    if (scorePct >= 60) {
+                        strongAreas.push(`<strong>${subject}</strong>: Solid grasp of fundamentals (${scorePct}% accuracy).`);
+                    } else {
+                        weakAreas.push(`<strong>${subject}</strong>: Needs targeted practice on core concepts (${scorePct}% accuracy).`);
+                    }
+                }
+
+                // Render Subject Breakdown Card
+                analysisContainer.innerHTML += `
+                    <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="font-bold text-lg text-gray-800">${subject}</h4>
+                            <span class="bg-gray-100 text-gray-800 font-bold px-3 py-1 rounded-lg text-sm">${scorePct}% Score</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4 text-sm">
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <span class="block text-gray-500 font-medium mb-1">Self-Rating</span>
+                                <span class="font-semibold text-gray-900">${selfRatingStr}</span>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg border border-${gapColor}-100">
+                                <span class="block text-gray-500 font-medium mb-1">Assessed Level</span>
+                                <span class="font-semibold text-${gapColor}-600">${assessedLevelStr}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center text-sm font-medium text-${gapColor}-600 bg-${gapColor}-50 p-2 rounded-lg">
+                            <i class="fa-solid ${gapIcon} mr-2"></i> Status: ${gapStatus}
+                        </div>
+                    </div>
+                `;
+
+                // Generate Recommendations
+                let recTitle = "";
+                let recSteps = [];
+                let recommendedActivity = "";
+
+                if (scorePct < 40) {
+                    recTitle = `Foundational Reinforcement for ${subject}`;
+                    recSteps = [
+                        `Review basic syntax and core definitions for ${subject}.`,
+                        `Solve at least 10 guided introductory exercises.`,
+                        `Attend instructor office hours or join peer study groups.`
+                    ];
+                    recommendedActivity = `Foundational Modules & Guided Drills`;
+                } else if (scorePct < 80) {
+                    recTitle = `Targeted Skill Enhancement for ${subject}`;
+                    recSteps = [
+                        `Focus specifically on incorrect questions identified in the review.`,
+                        `Practice intermediate problem sets at the ${assessedLevelStr} level.`,
+                        `Build a mini-project applying these specific concepts.`
+                    ];
+                    recommendedActivity = `Targeted Problem Sets & Mini-Projects`;
+                } else {
+                    recTitle = `Advanced Mastery for ${subject}`;
+                    recSteps = [
+                        `Explore edge-cases and advanced architectural topics.`,
+                        `Participate in competitive challenges or advanced labs.`,
+                        `Mentor peers to reinforce your understanding.`
+                    ];
+                    recommendedActivity = `Advanced Case Studies & Peer Mentorship`;
+                }
+
+                recommendationsContainer.innerHTML += `
+                    <div class="bg-white p-5 rounded-xl border border-blue-100 shadow-sm">
+                        <div class="flex items-center mb-2">
+                            <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center font-bold mr-3 text-sm">
+                                <i class="fa-solid fa-lightbulb"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-800 text-base">${recTitle}</h4>
+                        </div>
+                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 ml-2">
+                            ${recSteps.map(step => `<li>${step}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+
+                // Add to Learning Plan Roadmap
+                const badgeColor = priority === 'High' ? 'bg-red-100 text-red-700' : priority === 'Medium' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700';
+                learningPlanTbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-4 font-semibold text-gray-800">${subject}</td>
+                        <td class="p-4 text-gray-600">${recommendedActivity}</td>
+                        <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${badgeColor}">${priority} Priority</span></td>
+                    </tr>
+                `;
+            }
+
+            if (strongAreas.length === 0) {
+                strongListEl.innerHTML = `<li>Continue practicing to establish mastery benchmarks.</li>`;
+            } else {
+                strongAreas.forEach(item => { strongListEl.innerHTML += `<li class="flex items-start"><i class="fa-solid fa-check text-green-600 mt-1 mr-2"></i><span>${item}</span></li>`; });
+            }
+
+            if (weakAreas.length === 0) {
+                weakListEl.innerHTML = `<li class="text-green-700 font-medium"><i class="fa-solid fa-face-smile mr-1"></i> No significant skill gaps detected! Excellent overall performance.</li>`;
+            } else {
+                weakAreas.forEach(item => { weakListEl.innerHTML += `<li class="flex items-start"><i class="fa-solid fa-arrow-right text-amber-600 mt-1 mr-2"></i><span>${item}</span></li>`; });
+            }
+
+            // Detailed Answer Review
+            const reviewContainer = document.getElementById('review-answers-list');
+            reviewContainer.innerHTML = '';
+
+            state.assessment.history.forEach((hq, idx) => {
+                const isCorrect = hq.isCorrect;
+                const studentAnsText = hq.selectedOption !== null ? hq.options[hq.selectedOption] : "No answer selected";
+                const correctAnsText = hq.options[hq.answer];
+
+                const badgeClass = isCorrect ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200';
+                const badgeIcon = isCorrect ? 'fa-check' : 'fa-xmark';
+                const badgeText = isCorrect ? 'Correct' : 'Incorrect';
+                const boxColor = isCorrect ? 'green' : 'red';
+
+                reviewContainer.innerHTML += `
+                    <div class="bg-white p-5 rounded-xl border shadow-sm">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-sm font-semibold text-gray-500 uppercase">Question ${idx + 1} &middot; ${hq.subject}</span>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold border ${badgeClass}">
+                                <i class="fa-solid ${badgeIcon} mr-1"></i> ${badgeText}
+                            </span>
+                        </div>
+                        <p class="text-gray-800 font-medium mb-4">${hq.q}</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                            <div class="p-3 rounded-lg border bg-${boxColor}-50 border-${boxColor}-200">
+                                <span class="block text-gray-500 text-xs font-semibold mb-1">Your Answer:</span>
+                                <span class="font-medium text-gray-900">${studentAnsText}</span>
+                            </div>
+                            <div class="p-3 rounded-lg border bg-green-50 border-green-200">
+                                <span class="block text-green-600 text-xs font-semibold mb-1">Correct Answer:</span>
+                                <span class="font-medium text-gray-900">${correctAnsText}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            goToStep(5);
+        }
+
+        function restartAgent() {
+            state.profile = {};
+            state.selectedSubjects = [];
+            state.selfRatings = {};
+            state.assessment.history = [];
+            state.assessment.globalIndex = 0;
+            
+            document.getElementById('profile-name').value = '';
+            document.getElementById('profile-college').value = '';
+            document.getElementById('profile-degree').value = '';
+            document.getElementById('profile-year').value = '';
+            document.getElementById('profile-branch').value = '';
+            
+            goToStep(1);
+        }
+    </script>
+</body>
+</html>
